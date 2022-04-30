@@ -1,0 +1,138 @@
+swagger: '2.0'
+info:
+  description: This is a API for stock trading revenue calculator
+  version: 1.0.0
+  title: Revenue Calculator API
+  contact:
+    email: revathi.thangavel@hotmail.com
+
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+
+tags:
+- name: customer
+  description: Secured customer calls
+
+paths:
+  /calculateRevenue:
+   
+    post:
+      tags:
+      - customer
+      summary: Sending json data to calculate revenue
+      description:  By passing in the appropriate options, you can calculate revenue for the years
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: calculateRevenue
+        description: calculate revenue based on the user input
+        schema:
+          $ref: '#/definitions/customerInput'
+      responses:
+        200:
+          description: revenue calculated
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Revenue'
+        400:
+          description: invalid input, object invalid
+        
+definitions:
+  Revenue:
+    type: object
+    properties:
+      Year:
+        type: string
+        example: 2018-2019
+      Items:
+       type: array
+       items:
+         $ref: '#/definitions/SoldSharesRevenue'
+    
+  SoldSharesRevenue:
+    type: object
+    properties:
+      Date:
+        type: string
+        format: date-time
+        example: '2016-08-29T09:12:33.001Z'
+      Market:
+        type: string
+        example: NEXTDC Ltd
+      Quantity:
+        type: integer
+        example: 399
+      PandL:
+        type: integer
+        example: 400.23
+      SellUnitPrice:
+        type: integer
+        example: 1.9
+  customerInput:
+    type: object
+    required:
+    - TransactionData
+    properties:
+      FinancialYear:
+        type: string
+        example: 2021
+      StartFinancialMonth:
+        type: string
+        example: June
+      EndFinancialMonth:
+        type: string
+        example: July
+      SkipCorporateAction:
+        type: boolean
+        example: true
+        
+      TransactionData:
+        $ref: '#/definitions/transactionData'
+        
+  transactionData:
+    required:
+    - Date
+    - Market
+    - Cost
+    - Direction
+    - Price
+    - Activity
+    - Quantity
+    properties:
+      Date:
+        type: string
+        format: date-time
+        example: '2016-08-29T09:12:33.001Z'
+      Market:
+        type: string
+        example:  NextTDC Ltd
+      Cost:
+        type: integer
+        example: 408
+      Direction:
+        type: string
+        example: SELL
+      Price:
+        type: integer
+        example: 6.25
+      Activity:
+        type: string
+        example: TRADE
+      Quantity:
+        type: string
+        example: 500
+        
+# Added by API Auto Mocking Plugin
+# host: localhost
+basePath: /traderevenuecalc/revenueCalculator/1.0.0
+schemes:
+ - https
+# Added by API Auto Mocking Plugin
+# host: localhost
+# Added by API Auto Mocking Plugin
+host: virtserver.swaggerhub.com

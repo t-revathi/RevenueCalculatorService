@@ -9,6 +9,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
 	"github.com/go-chi/render"
 )
 
@@ -25,19 +26,18 @@ func (u *UserService) PerformCalculateProfit(ctx context.Context, w http.Respons
 	transactionData := req.TransactionData
 
 	/*render.JSON(w, r,
-		DataCalculateRevenue{
-			transactionData,
-			req.Config,
-		})*/
+	DataCalculateRevenue{
+		transactionData,
+		req.Config,
+	})*/
 	income := processTransactions(transactionData, req.Config)
-	
-	render.JSON(w, r,
-	income)
 
-	
+	render.JSON(w, r,
+		income.Items)
+
 }
 
-func processTransactions(transactions []Transaction, config Config)map[string][]Income {
+func processTransactions(transactions []Transaction, config Config) RevenueCollection {
 	formatTransactions(&transactions)
 	fmt.Printf("\n %v+", transactions)
 	buyShares := getbuyShares(transactions, config)
@@ -100,9 +100,9 @@ func getsellShares(transaction []Transaction, config Config) []Transaction {
 	return selltransactions
 }
 
-func calculatePandL(buyshares []Transaction, sellShares []Transaction, config Config) map[string][]Income {
+func calculatePandL(buyshares []Transaction, sellShares []Transaction, config Config) RevenueCollection {
 
-	income := make(map[string][]Income)
+	income := RevenueCollection{}
 
 	for idx := range sellShares {
 		pq := 0
@@ -139,9 +139,9 @@ func calculatePandL(buyshares []Transaction, sellShares []Transaction, config Co
 				income[currentSellRecord.Market] = make([]Income, 0)
 			}*/
 
-			if _, ok := income[currentRecordSellYear]; !ok {
-				income[currentRecordSellYear] = make([]Income, 0)
-			}
+			// if _, ok := income[currentRecordSellYear]; !ok {
+			// 	income[currentRecordSellYear] = make([]Income, 0)
+			// }
 
 			//income = append(income,income[sellShares[idx].Market])
 		}
@@ -149,7 +149,7 @@ func calculatePandL(buyshares []Transaction, sellShares []Transaction, config Co
 		inc.PandL = pl
 
 		//income[currentSellRecord.Market] = append(income[currentSellRecord.Market], inc)
-		income[currentRecordSellYear] = append(income[currentRecordSellYear], inc)
+		income.Add(currentRecordSellYear, inc)
 
 	}
 	//fmt.Printf("%v+ \n", income)
