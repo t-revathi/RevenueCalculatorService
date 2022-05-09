@@ -30,14 +30,14 @@ func (u *UserService) PerformCalculateProfit(ctx context.Context, w http.Respons
 		transactionData,
 		req.Config,
 	})*/
-	income := processTransactions(transactionData, req.Config)
+	income := ProcessTransactions(transactionData, req.Config)
 
 	render.JSON(w, r,
 		income.Items)
 
 }
 
-func processTransactions(transactions []Transaction, config Config) RevenueCollection {
+func ProcessTransactions(transactions []Transaction, config Config) RevenueCollection {
 	formatTransactions(&transactions)
 	fmt.Printf("\n %v+", transactions)
 	buyShares := getbuyShares(transactions, config)
