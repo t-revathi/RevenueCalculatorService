@@ -24,6 +24,7 @@ var _ = Describe("ProcessTransactions", func() {
 			Quantity:  500,
 			Date:      time.Date(2018, time.November, 9, 12, 42, 31, 0, &time.Location{}),
 			Activity:  "TRADE",
+			UnitPrice: 0.0,
 		})
 		transactions = append(transactions, service.Transaction{
 			Market:    "NEXTDC Ltd",
@@ -33,6 +34,7 @@ var _ = Describe("ProcessTransactions", func() {
 			Quantity:  499,
 			Date:      time.Date(2019, time.February, 14, 12, 42, 31, 0, &time.Location{}),
 			Activity:  "TRADE",
+			UnitPrice: 0.0,
 		})
 		transactions = append(transactions, service.Transaction{
 			Market:    "NEXTDC Ltd",
@@ -42,6 +44,7 @@ var _ = Describe("ProcessTransactions", func() {
 			Quantity:  322,
 			Date:      time.Date(2019, time.April, 2, 12, 42, 31, 0, &time.Location{}),
 			Activity:  "TRADE",
+			UnitPrice: 0.0,
 		})
 		transactions = append(transactions, service.Transaction{
 			Market:    "NEXTDC Ltd",
@@ -51,6 +54,7 @@ var _ = Describe("ProcessTransactions", func() {
 			Quantity:  322,
 			Date:      time.Date(2019, time.April, 26, 12, 42, 31, 0, &time.Location{}),
 			Activity:  "TRADE",
+			UnitPrice: 0.0,
 		})
 		transactions = append(transactions, service.Transaction{
 			Market:    "NEXTDC Ltd",
@@ -60,6 +64,7 @@ var _ = Describe("ProcessTransactions", func() {
 			Quantity:  200,
 			Date:      time.Date(2019, time.June, 27, 12, 42, 31, 0, &time.Location{}),
 			Activity:  "TRADE",
+			UnitPrice: 0.0,
 		})
 		transactions = append(transactions, service.Transaction{
 			Market:    "NEXTDC Ltd",
@@ -69,6 +74,7 @@ var _ = Describe("ProcessTransactions", func() {
 			Quantity:  200,
 			Date:      time.Date(2019, time.December, 11, 12, 42, 31, 0, &time.Location{}),
 			Activity:  "TRADE",
+			UnitPrice: 0.0,
 		})
 		config = service.Config{true, "2021", "June", "July"}
 
@@ -83,5 +89,36 @@ var _ = Describe("ProcessTransactions", func() {
 			Expect(math.Round(float64(result.Items[0].Items[1].PandL))).To(Equal(math.Round(59.60878)))
 			Expect(math.Round(float64(result.Items[1].Items[0].PandL))).To(Equal(math.Round(54.235153)))
 		})
+	})
+	Describe("Operations before caluclating profit/loss", func() {
+		Context("Calculate unit price based on the input", func() {
+			It("Checking the calcluated Unit price", func() {
+				t := &transactions
+				unitprices := []float64{6.266, 6.948978, 6.2048445, 6.390155, 6.44, 6.71}
+				service.CalculateUnitPrice(t)
+				for i := 0; i < len(*t); i++ {
+					Expect(math.Round(float64((*t)[i].UnitPrice))).To(Equal(math.Round(unitprices[i])))
+				}
+			})
+
+		})
+		Context("Get Buy or Sell shares", func() {
+			It("Checking the count of buy shares", func() {
+				result := service.GetbuyShares(transactions, config)
+				Expect(len(result)).To(Equal(3))
+			})
+			It("Checking the count of Sell shares", func() {
+				result := service.GetsellShares(transactions, config)
+				Expect(len(result)).To(Equal(3))
+			})
+			It("Checking earlier buy share", func() {
+				result := service.GetearlierbuyShare(transactions, "NEXTDC Ltd")
+				Expect(&result).NotTo(Equal(BeNil()))
+				Expect(result.Quantity).To(Equal(500))
+				Expect(result.Price).To(Equal(float32(6.25)))
+				Expect(result.Cost).To(Equal(float32(-3133)))
+			})
+		})
+
 	})
 })
