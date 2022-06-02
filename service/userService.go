@@ -30,19 +30,19 @@ func (u *UserService) PerformCalculateProfit(ctx context.Context, w http.Respons
 		transactionData,
 		req.Config,
 	})*/
-	income := processTransactions(transactionData, req.Config)
+	income := ProcessTransactions(transactionData, req.Config)
 
 	render.JSON(w, r,
 		income.Items)
 
 }
 
-func processTransactions(transactions []Transaction, config Config) RevenueCollection {
-	formatTransactions(&transactions)
+func ProcessTransactions(transactions []Transaction, config Config) RevenueCollection {
+	CalculateUnitPrice(&transactions)
 	fmt.Printf("\n %v+", transactions)
-	buyShares := getbuyShares(transactions, config)
+	buyShares := GetbuyShares(transactions, config)
 	//fmt.Println(buyShares)
-	sellShares := getsellShares(transactions, config)
+	sellShares := GetsellShares(transactions, config)
 	//fmt.Println(sellShares)
 	//return
 	income := calculatePandL(buyShares, sellShares, config)
@@ -50,7 +50,7 @@ func processTransactions(transactions []Transaction, config Config) RevenueColle
 	return income
 }
 
-func formatTransactions(transactions *[]Transaction) {
+func CalculateUnitPrice(transactions *[]Transaction) {
 
 	for i := 0; i < len(*transactions); i++ {
 
@@ -62,7 +62,7 @@ func formatTransactions(transactions *[]Transaction) {
 
 }
 
-func getbuyShares(transactions []Transaction, config Config) []Transaction {
+func GetbuyShares(transactions []Transaction, config Config) []Transaction {
 
 	buytransactions := make([]Transaction, 0)
 
@@ -81,7 +81,7 @@ func getbuyShares(transactions []Transaction, config Config) []Transaction {
 	return buytransactions
 }
 
-func getsellShares(transaction []Transaction, config Config) []Transaction {
+func GetsellShares(transaction []Transaction, config Config) []Transaction {
 	selltransactions := make([]Transaction, 0)
 	for _, t := range transaction {
 		if config.SkipCorporateAction {
@@ -122,7 +122,7 @@ func calculatePandL(buyshares []Transaction, sellShares []Transaction, config Co
 		inc.SellUnitPrice = currentSellRecord.UnitPrice
 		fmt.Printf("Sell: %v \n", currentSellRecord)
 		for currentSellRecord.Quantity > 0 {
-			buyt := getearlierbuyShare(buyshares, currentSellRecord.Market)
+			buyt := GetearlierbuyShare(buyshares, currentSellRecord.Market)
 			if buyt.Quantity >= currentSellRecord.Quantity {
 				pq = currentSellRecord.Quantity
 			} else {
@@ -156,7 +156,7 @@ func calculatePandL(buyshares []Transaction, sellShares []Transaction, config Co
 	return income
 }
 
-func getearlierbuyShare(buyshares []Transaction, market string) *Transaction {
+func GetearlierbuyShare(buyshares []Transaction, market string) *Transaction {
 	mindate := time.Now()
 	//var earliershare Transaction
 	earlierShareIdx := 0

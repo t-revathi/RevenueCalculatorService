@@ -1,15 +1,25 @@
 swagger: '2.0'
+security:
+  - api_key: []
 info:
   description: This is a API for stock trading revenue calculator
   version: 1.0.0
-  title: Revenue Calculator API
+  title: revenuecalculatorservice Revenue Calculator Service
   contact:
     email: revathi.thangavel@hotmail.com
-
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
-
+produces:
+- application/json
+x-google-backend:
+  address: https://revenuecalculatorservice-l7o4jvnara-km.a.run.app
+securityDefinitions:
+  # This section configures basic authentication with an API key.
+  api_key:
+    type: "apiKey"
+    name: "key"
+    in: "query"
 tags:
 - name: customer
   description: Secured customer calls
@@ -21,6 +31,7 @@ paths:
       tags:
       - customer
       summary: Sending json data to calculate revenue
+      operationId: revenueCalculation
       description:  By passing in the appropriate options, you can calculate revenue for the years
       consumes:
       - application/json
@@ -129,10 +140,10 @@ definitions:
         
 # Added by API Auto Mocking Plugin
 # host: localhost
-basePath: /traderevenuecalc/revenueCalculator/1.0.0
+#basePath: /traderevenuecalc/revenueCalculator/1.0.0
 schemes:
  - https
 # Added by API Auto Mocking Plugin
 # host: localhost
 # Added by API Auto Mocking Plugin
-host: virtserver.swaggerhub.com
+#host: virtserver.swaggerhub.com
