@@ -2,6 +2,7 @@ package controller
 
 import (
 	"api-traderevenuecalculator/service"
+	"fmt"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -18,10 +19,19 @@ func NewUserController() *UserController {
 		userService: service.NewUserService(),
 	}
 }
+func Health(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println(r.RequestURI)
+		next.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fn)
+}
 
 func (u *UserController) WireRoutes(r chi.Router) {
 	r.Route("/", func(r chi.Router) {
+		r = r.With(Health)
 		r.Post("/calculateRevenue", u.PerformCalculateProfit)
+
 		r.Get("/healthCheck", u.healthCheck)
 	})
 }

@@ -12,10 +12,20 @@ import (
 func main() {
 	startService()
 }
+func LogRequest(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("Hello")
+		next.ServeHTTP(w, r)
+	}
+	return http.HandlerFunc(fn)
+}
+
 func startService() {
 	router := chi.NewRouter()
 
 	router.Use(render.SetContentType(render.ContentTypeJSON))
+	router.Use(LogRequest)
+	
 
 	userController := controller.NewUserController()
 	userController.WireRoutes(router)
