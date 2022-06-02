@@ -21,6 +21,7 @@ git clone https://github.com/t-revathi/RevenueCalculatorService.git
 ```
 
 # Sample Input
+```
 {"Config":{"FinancialYear":"2021",
 "StartFinancialMonth":"July",
 "EndFinancialMonth":"June",
@@ -87,8 +88,9 @@ git clone https://github.com/t-revathi/RevenueCalculatorService.git
 
 ]
 }
-
+```
 # Sample Output
+```
 [
     {
         "Year": "2018-2019",
@@ -122,6 +124,7 @@ git clone https://github.com/t-revathi/RevenueCalculatorService.git
         ]
     }
 ]
+```
 
 
 
