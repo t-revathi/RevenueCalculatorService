@@ -79,10 +79,10 @@ definitions:
         type: integer
         example: 399
       PandL:
-        type: integer
+        type: number
         example: 400.23
       SellUnitPrice:
-        type: integer
+        type: number
         example: 1.9
   customerInput:
     type: object
@@ -123,19 +123,19 @@ definitions:
         type: string
         example:  NextTDC Ltd
       Cost:
-        type: integer
+        type: number
         example: 408
       Direction:
         type: string
         example: SELL
       Price:
-        type: integer
+        type: number
         example: 6.25
       Activity:
         type: string
         example: TRADE
       Quantity:
-        type: string
+        type: integer
         example: 500
         
 # Added by API Auto Mocking Plugin

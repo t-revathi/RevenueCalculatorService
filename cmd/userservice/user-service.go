@@ -10,7 +10,8 @@ import (
 )
 
 func main() {
-	startService()
+	 savetodb := "mongodb"
+	startService(savetodb)
 }
 func LogRequest(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
@@ -20,14 +21,14 @@ func LogRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func startService() {
+func startService(db string) {
 	router := chi.NewRouter()
 
 	router.Use(render.SetContentType(render.ContentTypeJSON))
 	router.Use(LogRequest)
 	
 
-	userController := controller.NewUserController()
+	userController := controller.NewUserController(db)
 	userController.WireRoutes(router)
 
 	serverAddr := ":3333"
