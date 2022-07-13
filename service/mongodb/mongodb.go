@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -46,20 +47,16 @@ func (db *DBService) Connectdb(uri string) (*mongo.Client, context.Context,
 	// ctx will be used to set deadline for process, here
 	// deadline will of 30 seconds.
 	ctx, cancel := context.WithTimeout(context.Background(),
-		30*time.Second)
+		60*time.Second)
 
 	// mongo.Connect return mongo.Client method
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
 	if err == nil {
 		fmt.Println("Mongodb Connected")
+		databases, err := client.ListDatabaseNames(ctx, bson.M{})
+		fmt.Println(databases, err)
 	}
-	var cred options.Credential
-
-	cred.Username = "admin"
-	cred.Password = "admin"
-	//cred.AuthSource = "0.0.0.0"
-	options.Client().ApplyURI(uri).SetAuth(cred)
 
 	return client, ctx, cancel, err
 }
@@ -85,4 +82,18 @@ func (db *DBService) Insertone(client *mongo.Client, ctx context.Context, dataBa
 	result, err := collection.InsertOne(ctx, doc)
 	return result, err
 
+}
+
+func (db *DBService) FindOne(client *mongo.Client, ctx context.Context, dataBase string, col string, filter interface{}) *mongo.SingleResult {
+	collection := client.Database(dataBase).Collection(col)
+	result := collection.FindOne(ctx, filter)
+	return result
+}
+
+func (db *DBService) FindAll(client *mongo.Client, ctx context.Context, dataBase string, col string, filter interface{}) (*mongo.Cursor, error) {
+	collection := client.Database(dataBase).Collection(col)
+	result, err := collection.Find(ctx, filter)
+	var bson_obj bson.M
+	fmt.Println(result.Decode(&bson_obj))
+	return result, err
 }

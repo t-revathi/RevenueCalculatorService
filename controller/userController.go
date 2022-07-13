@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-chi/chi"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/go-chi/render"
 )
@@ -61,9 +62,28 @@ func (u *UserController) PerformCalculateProfit(w http.ResponseWriter, r *http.R
 		fmt.Println("Couldn't connect to Database")
 	}
 
-	doc := bson.D{{"test1", result.Items}}
-	res, err := u.dbService.Insertone(client, ctx, "stockprofitcalculator", "PLresults", doc)
+	// Insert and Listing opertaions
+	dbname := "stockprofitcalculator"
+	collection := "plResults"
+
+	doc := bson.D{{Key: "data", Value: result.Items}}
+
+	res, err := u.dbService.Insertone(client, ctx, dbname, collection, doc)
+	if err != nil {
+		fmt.Println("Error Occured during insertion" + err.Error())
+	}
 	fmt.Println(res, err)
+	//Listing the last inserted Record
+	id, _ := res.InsertedID.(primitive.ObjectID)
+	//primitive.ObjectIDFromHex(string("62ccdf87b79b0e2fc4ea67f0"))
+	filter := bson.D{{Key: "_id", Value: id}}
+
+	var record bson.M
+	u.dbService.FindOne(client, ctx, dbname, collection, filter).Decode(&record)
+
+	fmt.Println(record)
+
+	//Return results to client
 	render.JSON(w, r,
 		result.Items)
 }
