@@ -1,7 +1,7 @@
 package RevenueCalculatorService_test
 
 import (
-	"api-traderevenuecalculator/service"
+	service "api-traderevenuecalculator/service/userservice"
 	"math"
 
 	. "github.com/onsi/ginkgo/v2"
