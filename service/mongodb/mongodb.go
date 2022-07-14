@@ -3,6 +3,7 @@ package mongodb
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -90,10 +91,12 @@ func (db *DBService) FindOne(client *mongo.Client, ctx context.Context, dataBase
 	return result
 }
 
-func (db *DBService) FindAll(client *mongo.Client, ctx context.Context, dataBase string, col string, filter interface{}) (*mongo.Cursor, error) {
+func (db *DBService) FindAll(client *mongo.Client, ctx context.Context, dataBase string, col string, filter interface{}) *mongo.Cursor {
 	collection := client.Database(dataBase).Collection(col)
-	result, err := collection.Find(ctx, filter)
-	var bson_obj bson.M
-	fmt.Println(result.Decode(&bson_obj))
-	return result, err
+	cursor, err := collection.Find(ctx, filter)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return cursor
 }

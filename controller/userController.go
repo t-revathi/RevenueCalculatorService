@@ -4,6 +4,7 @@ import (
 	mongo "api-traderevenuecalculator/service/mongodb"
 	service "api-traderevenuecalculator/service/userservice"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/go-chi/chi"
@@ -38,6 +39,7 @@ func (u *UserController) WireRoutes(r chi.Router) {
 		r.Post("/calculateRevenue", u.PerformCalculateProfit)
 
 		r.Get("/healthCheck", u.healthCheck)
+		r.Get("/allRevenue",u.ShowAllRevenue)
 	})
 }
 
@@ -86,6 +88,34 @@ func (u *UserController) PerformCalculateProfit(w http.ResponseWriter, r *http.R
 	//Return results to client
 	render.JSON(w, r,
 		result.Items)
+}
+
+func (u *UserController) ShowAllRevenue(w http.ResponseWriter, r *http.Request) {
+
+	client, ctx, cancel, err := u.dbService.Connectdb("mongodb://0.0.0.0:27017/stockprofitcalculator")
+
+	if err != nil {
+		panic(err)
+	}
+	err = u.dbService.Pingdb(client, ctx)
+
+	defer u.dbService.Closedb(client, ctx, cancel)
+	if err != nil {
+		fmt.Println("Couldn't connect to Database")
+	}
+
+	collection := "plResults"
+	filter := bson.M{}
+
+	// Get all records
+	cursor := u.dbService.FindAll(client, ctx, "stockprofitcalculator", collection, filter)
+	var results []bson.M
+	if err = cursor.All(ctx, &results); err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(results)
+	//Return results to client
+	//render.JSON(w, r,	result.Items)
 }
 
 func (u *UserController) healthCheck(w http.ResponseWriter, r *http.Request) {
