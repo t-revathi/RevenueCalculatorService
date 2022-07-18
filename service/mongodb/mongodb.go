@@ -3,6 +3,7 @@ package mongodb
 import (
 	"context"
 	"fmt"
+	"log"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -12,13 +13,24 @@ import (
 )
 
 type DBService struct {
+	Client mongo.Client
+	Ctx    context.Context
+	Cancel context.CancelFunc
+	Err    error
 }
 
-func NewDBService() *DBService {
-	return &DBService{}
+func NewDBService(dburi string) *DBService {
+	client, ctx, cancel, err := connectdb(dburi)
+
+	return &DBService{
+		Client: *client,
+		Ctx:    ctx,
+		Cancel: cancel,
+		Err:    err,
+	}
 }
 
-func (db *DBService) Closedb(client *mongo.Client, ctx context.Context,
+/*func closedb(client *mongo.Client, ctx context.Context,
 	cancel context.CancelFunc) {
 
 	// CancelFunc to cancel to context
@@ -32,7 +44,7 @@ func (db *DBService) Closedb(client *mongo.Client, ctx context.Context,
 			panic(err)
 		}
 	}()
-}
+}*/
 
 // This is a user defined method that returns mongo.Client,
 // context.Context, context.CancelFunc and error.
@@ -41,7 +53,7 @@ func (db *DBService) Closedb(client *mongo.Client, ctx context.Context,
 // context.CancelFunc will be used to cancel context and
 // resource associated with it.
 
-func (db *DBService) Connectdb(uri string) (*mongo.Client, context.Context,
+func connectdb(uri string) (*mongo.Client, context.Context,
 	context.CancelFunc, error) {
 
 	// ctx will be used to set deadline for process, here
@@ -52,6 +64,9 @@ func (db *DBService) Connectdb(uri string) (*mongo.Client, context.Context,
 	// mongo.Connect return mongo.Client method
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(uri))
+	if err != nil {
+		panic(err)
+	}
 	if err == nil {
 		fmt.Println("Mongodb Connected")
 		databases, err := client.ListDatabaseNames(ctx, bson.M{})
@@ -80,6 +95,7 @@ func (db *DBService) Pingdb(client *mongo.Client, ctx context.Context) error {
 func (db *DBService) Insertone(client *mongo.Client, ctx context.Context, dataBase string, col string, doc interface{}) (*mongo.InsertOneResult, error) {
 	collection := client.Database(dataBase).Collection(col)
 	result, err := collection.InsertOne(ctx, doc)
+	//defer closedb(client,ctx,db.cancel)
 	return result, err
 
 }
@@ -90,10 +106,12 @@ func (db *DBService) FindOne(client *mongo.Client, ctx context.Context, dataBase
 	return result
 }
 
-func (db *DBService) FindAll(client *mongo.Client, ctx context.Context, dataBase string, col string, filter interface{}) (*mongo.Cursor, error) {
+func (db *DBService) FindAll(client *mongo.Client, ctx context.Context, dataBase string, col string, filter interface{}) *mongo.Cursor {
 	collection := client.Database(dataBase).Collection(col)
-	result, err := collection.Find(ctx, filter)
-	var bson_obj bson.M
-	fmt.Println(result.Decode(&bson_obj))
-	return result, err
+	cursor, err := collection.Find(ctx, filter)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	return cursor
 }
