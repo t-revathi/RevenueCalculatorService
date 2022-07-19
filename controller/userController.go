@@ -19,10 +19,10 @@ type UserController struct {
 	dbService   *mongo.DBService
 }
 
-func NewUserController(db string) *UserController {
+func NewUserController(savetodb string, dburi string) *UserController {
 	return &UserController{
 		userService: service.NewUserService(),
-		dbService:   mongo.NewDBService("mongodb://0.0.0.0:27017/stockprofitcalculator"),
+		dbService:   mongo.NewDBService(dburi),
 	}
 }
 func Health(next http.Handler) http.Handler {
