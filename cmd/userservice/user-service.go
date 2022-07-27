@@ -2,6 +2,7 @@ package main
 
 import (
 	"api-traderevenuecalculator/controller"
+	mongo "api-traderevenuecalculator/service/mongodb"
 	"flag"
 	"fmt"
 	"net/http"
@@ -30,7 +31,7 @@ func startService(savetodb string, dburi string) {
 	router.Use(render.SetContentType(render.ContentTypeJSON))
 	router.Use(LogRequest)
 
-	userController := controller.NewUserController(savetodb, dburi)
+	userController := controller.NewUserController(savetodb, dburi, mongo.NewDBService(dburi))
 	userController.WireRoutes(router)
 
 	serverAddr := ":3333"

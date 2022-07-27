@@ -64,3 +64,4 @@ func (r *RevenueCollection) Get(year string) *Revenue {
 
 	return nil
 }
+
