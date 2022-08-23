@@ -1,7 +1,6 @@
 package controller
 
 import (
-	mongo "api-traderevenuecalculator/service/mongodb"
 	service "api-traderevenuecalculator/service/userservice"
 	"context"
 	"fmt"
@@ -14,7 +13,8 @@ import (
 
 type DBInterface interface {
 	Pingdb(context.Context) error
-	Insertone(ctx context.Context, dataBase string, col string, doc interface{}) mongo.InsertOneResult
+	Insertone(ctx context.Context, dataBase string, col string, doc interface{}) service.InsertOneResult
+	FindAll(ctx context.Context, dataBase string, col string, filter interface{}) interface{}
 }
 
 type UserController struct {
@@ -54,18 +54,9 @@ func (u *UserController) PerformCalculateProfit(w http.ResponseWriter, r *http.R
 	}
 	result := u.userService.PerformCalculateProfit(r.Context(), w, r, &dataCalculateRevenue)
 
-	// if u.dbService.Err != nil {
-	// 	panic(u.dbService.Err)
-	// }
-	///err = u.dbService.Pingdb(client, ctx)
-
-	//defer u.dbService.Closedb(client, ctx, cancel)
-
 	// Insert and Listing opertaions
 	dbname := "stockprofitcalculator"
 	collection := "plResults"
-
-	//doc := bson.D{{Key: "data", Value: result.Items}}
 
 	res := u.dbService.Insertone(r.Context(), dbname, collection, result.Items)
 
@@ -90,18 +81,16 @@ func (u *UserController) PerformCalculateProfit(w http.ResponseWriter, r *http.R
 
 func (u *UserController) ShowAllRevenue(w http.ResponseWriter, r *http.Request) {
 
-	// collection := "plResults"
-	// filter := bson.M{}
+	collection := "plResults"
 
 	// // Get all records
-	// cursor := u.dbService.FindAll(&u.dbService.Client, u.dbService.Ctx, "stockprofitcalculator", collection, filter)
-	// var results []bson.M
-	// if err := cursor.All(u.dbService.Ctx, &results); err != nil {
-	// 	log.Fatal(err)
-	// }
-	// fmt.Println(results)
+	filter := ""
+	results := u.dbService.FindAll(r.Context(), "stockprofitcalculator", collection, filter)
+
+	fmt.Println(results)
 	// //Return results to client
-	// render.JSON(w, r, results)
+	render.JSON(w, r, results)
+
 }
 
 func (u *UserController) healthCheck(w http.ResponseWriter, r *http.Request) {

@@ -51,7 +51,7 @@ func (r *RevenueCollection) Add(year string, inc Income) {
 		}
 		r.Items = append(r.Items, revenue)
 	}
-	
+
 	revenue.Items = append(revenue.Items, inc)
 }
 
@@ -65,3 +65,7 @@ func (r *RevenueCollection) Get(year string) *Revenue {
 	return nil
 }
 
+type InsertOneResult struct {
+	Result interface{}
+	Err    error
+}

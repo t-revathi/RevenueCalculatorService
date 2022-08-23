@@ -1,6 +1,7 @@
 package mongodb
 
 import (
+	service "api-traderevenuecalculator/service/userservice"
 	"context"
 	"fmt"
 	"log"
@@ -17,9 +18,7 @@ type DBService struct {
 	Cancel context.CancelFunc
 	Err    error
 }
-type InsertOneResult struct {
-	Result interface{}
-	Err    error
+type FindAllResult struct {
 }
 
 func NewDBService(dburi string) *DBService {
@@ -99,17 +98,17 @@ func (db *DBService) Pingdb(ctx context.Context) error {
 	return nil
 }
 
-func (db *DBService) Insertone(ctx context.Context, dataBase string, col string, doc interface{}) InsertOneResult {
+func (db *DBService) Insertone(ctx context.Context, dataBase string, col string, doc interface{}) service.InsertOneResult {
 	doc = bson.D{{Key: "data", Value: doc}}
 	collection := db.Client.Database(dataBase).Collection(col)
 	result, err := collection.InsertOne(ctx, doc)
 	if err != nil {
-		return InsertOneResult{
+		return service.InsertOneResult{
 			Result: "Error occured while inserting",
 			Err:    err,
 		}
 	}
-	return InsertOneResult{
+	return service.InsertOneResult{
 		Result: result.InsertedID,
 		Err:    err,
 	}
@@ -124,12 +123,20 @@ func (db *DBService) FindOne(ctx context.Context, dataBase string, col string, f
 	return result
 }
 
-func (db *DBService) FindAll(ctx context.Context, dataBase string, col string, filter interface{}) *mongo.Cursor {
+func (db *DBService) FindAll(ctx context.Context, dataBase string, col string, filter interface{}) interface{} {
 	collection := db.Client.Database(dataBase).Collection(col)
+	if filter == "" {
+		filter = bson.M{}
+	}
+
 	cursor, err := collection.Find(ctx, filter)
 	if err != nil {
 		log.Fatal(err)
 	}
+	var results []bson.M
+	if err := cursor.All(ctx, &results); err != nil {
+		log.Fatal(err)
+	}
 
-	return cursor
+	return results
 }
