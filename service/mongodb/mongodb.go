@@ -3,6 +3,7 @@ package mongodb
 import (
 	service "api-traderevenuecalculator/service/userservice"
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"time"
@@ -98,17 +99,17 @@ func (db *DBService) Pingdb(ctx context.Context) error {
 	return nil
 }
 
-func (db *DBService) Insertone(ctx context.Context, dataBase string, col string, doc interface{}) service.InsertOneResult {
+func (db *DBService) Insertone(ctx context.Context, dataBase string, col string, doc interface{}) *service.InsertOneResult {
 	doc = bson.D{{Key: "data", Value: doc}}
 	collection := db.Client.Database(dataBase).Collection(col)
 	result, err := collection.InsertOne(ctx, doc)
 	if err != nil {
-		return service.InsertOneResult{
+		return &service.InsertOneResult{
 			Result: "Error occured while inserting",
 			Err:    err,
 		}
 	}
-	return service.InsertOneResult{
+	return &service.InsertOneResult{
 		Result: result.InsertedID,
 		Err:    err,
 	}
@@ -123,7 +124,7 @@ func (db *DBService) FindOne(ctx context.Context, dataBase string, col string, f
 	return result
 }
 
-func (db *DBService) FindAll(ctx context.Context, dataBase string, col string, filter interface{}) interface{} {
+func (db *DBService) FindAll(ctx context.Context, dataBase string, col string, filter interface{}) *string {
 	collection := db.Client.Database(dataBase).Collection(col)
 	if filter == "" {
 		filter = bson.M{}
@@ -138,5 +139,8 @@ func (db *DBService) FindAll(ctx context.Context, dataBase string, col string, f
 		log.Fatal(err)
 	}
 
-	return results
+	buff, _ := json.Marshal(&results)
+
+	resultJson := string(buff)
+	return &resultJson
 }

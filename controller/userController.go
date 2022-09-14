@@ -13,8 +13,8 @@ import (
 
 type DBInterface interface {
 	Pingdb(context.Context) error
-	Insertone(ctx context.Context, dataBase string, col string, doc interface{}) service.InsertOneResult
-	FindAll(ctx context.Context, dataBase string, col string, filter interface{}) interface{}
+	Insertone(ctx context.Context, dataBase string, col string, doc interface{}) *service.InsertOneResult
+	FindAll(ctx context.Context, dataBase string, col string, filter interface{}) *string
 }
 
 type UserController struct {
