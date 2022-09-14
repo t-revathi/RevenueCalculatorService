@@ -2,6 +2,10 @@ package main
 
 import (
 	"api-traderevenuecalculator/controller"
+	mongo "api-traderevenuecalculator/service/mongodb"
+
+	nodb "api-traderevenuecalculator/test"
+	"flag"
 	"fmt"
 	"net/http"
 
@@ -10,8 +14,12 @@ import (
 )
 
 func main() {
-	 savetodb := "mongodb"
-	startService(savetodb)
+	var dburi string
+	var savetodb string
+	flag.StringVar(&dburi, "db-uri", "mongodb://0.0.0.0:27017/stockprofitcalculator", "data base name to connect")
+	flag.StringVar(&savetodb, "savetodb", "", "data base type")
+
+	startService(savetodb, dburi)
 }
 func LogRequest(next http.Handler) http.Handler {
 	fn := func(w http.ResponseWriter, r *http.Request) {
@@ -21,14 +29,19 @@ func LogRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(fn)
 }
 
-func startService(db string) {
+func startService(savetodb string, dburi string) {
 	router := chi.NewRouter()
 
 	router.Use(render.SetContentType(render.ContentTypeJSON))
 	router.Use(LogRequest)
-	
+	var userController *controller.UserController
+	switch savetodb {
+	case "mongodb":
+		userController = controller.NewUserController(savetodb, dburi, mongo.NewDBService(dburi))
+	default:
+		userController = controller.NewUserController(savetodb, dburi, nodb.NewDBService(dburi))
+	}
 
-	userController := controller.NewUserController(db)
 	userController.WireRoutes(router)
 
 	serverAddr := ":3333"

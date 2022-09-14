@@ -1,28 +1,31 @@
 package controller
 
 import (
-	mongo "api-traderevenuecalculator/service/mongodb"
 	service "api-traderevenuecalculator/service/userservice"
+	"context"
 	"fmt"
-	"log"
 	"net/http"
 
 	"github.com/go-chi/chi"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/go-chi/render"
 )
 
-type UserController struct {
-	userService *service.UserService
-	dbService   *mongo.DBService
+type DBInterface interface {
+	Pingdb(context.Context) error
+	Insertone(ctx context.Context, dataBase string, col string, doc interface{}) *service.InsertOneResult
+	FindAll(ctx context.Context, dataBase string, col string, filter interface{}) *string
 }
 
-func NewUserController(db string) *UserController {
+type UserController struct {
+	userService *service.UserService
+	dbService   DBInterface
+}
+
+func NewUserController(savetodb string, dburi string, dbinterface DBInterface) *UserController {
 	return &UserController{
 		userService: service.NewUserService(),
-		dbService:   mongo.NewDBService("mongodb://0.0.0.0:27017/stockprofitcalculator"),
+		dbService:   dbinterface,
 	}
 }
 func Health(next http.Handler) http.Handler {
@@ -51,33 +54,25 @@ func (u *UserController) PerformCalculateProfit(w http.ResponseWriter, r *http.R
 	}
 	result := u.userService.PerformCalculateProfit(r.Context(), w, r, &dataCalculateRevenue)
 
-	if u.dbService.Err != nil {
-		panic(u.dbService.Err)
-	}
-	///err = u.dbService.Pingdb(client, ctx)
-
-	//defer u.dbService.Closedb(client, ctx, cancel)
-
 	// Insert and Listing opertaions
 	dbname := "stockprofitcalculator"
 	collection := "plResults"
 
-	doc := bson.D{{Key: "data", Value: result.Items}}
+	res := u.dbService.Insertone(r.Context(), dbname, collection, result.Items)
 
-	res, err := u.dbService.Insertone(&u.dbService.Client, u.dbService.Ctx, dbname, collection, doc)
-	if err != nil {
-		fmt.Println("Error Occured during insertion" + err.Error())
+	if res.Err != nil {
+		fmt.Println("Error Occured during insertion" + res.Err.Error())
 	}
-	fmt.Println(res, err)
+	fmt.Println(res, res.Err)
 	//Listing the last inserted Record
-	id, _ := res.InsertedID.(primitive.ObjectID)
-	//primitive.ObjectIDFromHex(string("62ccdf87b79b0e2fc4ea67f0"))
-	filter := bson.D{{Key: "_id", Value: id}}
+	// id, _ := res.Result.(primitive.ObjectID)
+	// //primitive.ObjectIDFromHex(string("62ccdf87b79b0e2fc4ea67f0"))
+	// filter := bson.D{{Key: "_id", Value: id}}
 
-	var record bson.M
-	u.dbService.FindOne(&u.dbService.Client, u.dbService.Ctx, dbname, collection, filter).Decode(&record)
+	// var record bson.M
+	// u.dbService.FindOne(&u.dbService.Client, u.dbService.Ctx, dbname, collection, filter).Decode(&record)
 
-	fmt.Println(record)
+	// fmt.Println(record)
 
 	//Return results to client
 	render.JSON(w, r,
@@ -87,17 +82,15 @@ func (u *UserController) PerformCalculateProfit(w http.ResponseWriter, r *http.R
 func (u *UserController) ShowAllRevenue(w http.ResponseWriter, r *http.Request) {
 
 	collection := "plResults"
-	filter := bson.M{}
 
-	// Get all records
-	cursor := u.dbService.FindAll(&u.dbService.Client, u.dbService.Ctx, "stockprofitcalculator", collection, filter)
-	var results []bson.M
-	if err := cursor.All(u.dbService.Ctx, &results); err != nil {
-		log.Fatal(err)
-	}
+	// // Get all records
+	filter := ""
+	results := u.dbService.FindAll(r.Context(), "stockprofitcalculator", collection, filter)
+
 	fmt.Println(results)
-	//Return results to client
+	// //Return results to client
 	render.JSON(w, r, results)
+
 }
 
 func (u *UserController) healthCheck(w http.ResponseWriter, r *http.Request) {
