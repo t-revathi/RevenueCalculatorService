@@ -1,0 +1,125 @@
+swagger: '2.0'
+security:
+  - api_key: []
+info:
+  description: This is a API for stock trading revenue calculator
+  version: 1.0.0
+  title: revenuecalculatorservice Revenue Calculator Service
+  contact:
+    email: revathi.thangavel@hotmail.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+host: api-gateway
+basePath: /v1/revenuecalculatorservice
+produces:
+- application/json
+tags:
+- name: customer
+  description: Secured customer calls
+
+paths:
+  /calculateRevenue:
+    post:
+      tags:
+      - customer
+      summary: Sending json data to calculate revenue
+      operationId: revenueCalculation
+      description:  By passing in the appropriate options, you can calculate revenue for the years
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: calculateRevenue
+        description: calculate revenue based on the user input
+        schema:
+          $ref: '#/definitions/customerInput'
+      responses:
+        200:
+          description: revenue calculated
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Revenue'
+        400:
+          description: invalid input, object invalid
+        
+definitions:
+  Revenue:
+    type: object
+    properties:
+      Year:
+        type: string
+      Items:
+       type: array
+       items:
+         $ref: '#/definitions/SoldSharesRevenue'
+    
+  SoldSharesRevenue:
+    type: object
+    properties:
+      Date:
+        type: string
+        format: date-time
+      Market:
+        type: string
+      Quantity:
+        type: integer
+      PandL:
+        type: number
+      SellUnitPrice:
+        type: number
+  customerInput:
+    type: object
+    required:
+    - TransactionData
+    properties:
+      FinancialYear:
+        type: string
+      StartFinancialMonth:
+        type: string
+      EndFinancialMonth:
+        type: string
+      SkipCorporateAction:
+        type: boolean
+        
+      TransactionData:
+        $ref: '#/definitions/transactionData'
+        
+  transactionData:
+    required:
+    - Date
+    - Market
+    - Cost
+    - Direction
+    - Price
+    - Activity
+    - Quantity
+    properties:
+      Date:
+        type: string
+        format: date-time
+      Market:
+        type: string
+      Cost:
+        type: number
+      Direction:
+        type: string
+      Price:
+        type: number
+      Activity:
+        type: string
+      Quantity:
+        type: integer
+        
+# Added by API Auto Mocking Plugin
+# host: localhost
+#basePath: /traderevenuecalc/revenueCalculator/1.0.0
+schemes:
+ - https
+# Added by API Auto Mocking Plugin
+# host: localhost
+# Added by API Auto Mocking Plugin
+#host: virtserver.swaggerhub.com

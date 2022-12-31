@@ -52,7 +52,7 @@ func (u *UserController) PerformCalculateProfit(w http.ResponseWriter, r *http.R
 	if err := render.DecodeJSON(r.Body, &dataCalculateRevenue); err != nil {
 		return
 	}
-	result := u.userService.PerformCalculateProfit(r.Context(), w, r, &dataCalculateRevenue)
+	result := u.userService.PerformCalculateProfit(r.Context(), &dataCalculateRevenue)
 
 	// Insert and Listing opertaions
 	dbname := "stockprofitcalculator"

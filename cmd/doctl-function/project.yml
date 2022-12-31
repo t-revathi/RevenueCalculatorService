@@ -1,0 +1,19 @@
+parameters: {}
+environment: {}
+packages:
+    - name: RevenueTradingService
+      shared: false
+      environment: {}
+      parameters: {}
+      annotations: {}
+      functions:
+        - name: RevenueTradingService
+          binary: false
+          main: ""
+          runtime: go:default
+          web: true
+          websecure: false
+          parameters: {}
+          environment: {}
+          annotations: {}
+          limits: {}

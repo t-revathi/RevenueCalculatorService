@@ -4,13 +4,10 @@ import (
 	"context"
 	"fmt"
 	"math"
-	"net/http"
 	"sort"
 	"strconv"
 	"strings"
 	"time"
-
-	
 )
 
 type UserService struct {
@@ -20,7 +17,7 @@ func NewUserService() *UserService {
 	return &UserService{}
 }
 
-func (u *UserService) PerformCalculateProfit(ctx context.Context, w http.ResponseWriter, r *http.Request, req *DataCalculateRevenue) RevenueCollection{
+func (u *UserService) PerformCalculateProfit(ctx context.Context, req *DataCalculateRevenue) RevenueCollection {
 
 	fmt.Printf("Received financial year:%s on %s", req.Config.FinancialYear, time.Now().String())
 	transactionData := req.TransactionData
@@ -33,8 +30,8 @@ func (u *UserService) PerformCalculateProfit(ctx context.Context, w http.Respons
 	income := ProcessTransactions(transactionData, req.Config)
 
 	/*render.JSON(w, r,
-		income.Items)*/
-		return income
+	income.Items)*/
+	return income
 
 }
 

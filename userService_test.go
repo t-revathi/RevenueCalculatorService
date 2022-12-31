@@ -76,7 +76,7 @@ var _ = Describe("ProcessTransactions", func() {
 			Activity:  "TRADE",
 			UnitPrice: 0.0,
 		})
-		config = service.Config{true, "2021", "June", "July"}
+		config = service.Config{SkipCorporateAction: true, FinancialYear: "2021", StartFinancialMonth: "June", EndFinancialMonth: "July"}
 
 	})
 	Context("Checking the Profit/Loss", func() {
