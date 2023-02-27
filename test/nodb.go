@@ -1,8 +1,9 @@
 package test
 
 import (
-	service "api-traderevenuecalculator/service/userservice"
 	"context"
+
+	service "github.com/t-revathi/revenuecalculatorservice/service/userservice"
 )
 
 type noDB struct {

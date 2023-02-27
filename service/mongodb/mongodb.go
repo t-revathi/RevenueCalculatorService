@@ -1,12 +1,13 @@
 package mongodb
 
 import (
-	service "api-traderevenuecalculator/service/userservice"
 	"context"
 	"encoding/json"
 	"fmt"
 	"log"
 	"time"
+
+	service "github.com/t-revathi/revenuecalculatorservice/service/userservice"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -58,7 +59,8 @@ func NewDBService(dburi string) *DBService {
 // resource associated with it.
 
 // func connectdb(uri string) (*mongo.Client, context.Context,
-// 	context.CancelFunc, error) {
+//
+//	context.CancelFunc, error) {
 func connectdb(uri string) (*mongo.Client,
 	context.CancelFunc, error) {
 

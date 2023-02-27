@@ -1,10 +1,11 @@
 package controller
 
 import (
-	service "api-traderevenuecalculator/service/userservice"
 	"context"
 	"fmt"
 	"net/http"
+
+	service "github.com/t-revathi/revenuecalculatorservice/service/userservice"
 
 	"github.com/go-chi/chi"
 

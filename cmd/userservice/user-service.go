@@ -1,18 +1,20 @@
 package main
 
 import (
-	"api-traderevenuecalculator/controller"
-	mongo "api-traderevenuecalculator/service/mongodb"
+	"github.com/t-revathi/revenuecalculatorservice/controller"
+	mongo "github.com/t-revathi/revenuecalculatorservice/service/mongodb"
 
-	nodb "api-traderevenuecalculator/test"
 	"flag"
 	"fmt"
 	"net/http"
+
+	nodb "github.com/t-revathi/revenuecalculatorservice/test"
 
 	"github.com/go-chi/chi"
 	"github.com/go-chi/render"
 )
 
+// api-traderevenuecalculator
 func main() {
 	var dburi string
 	var savetodb string
